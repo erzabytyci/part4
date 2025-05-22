@@ -9,15 +9,33 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 });
 
+const jwt = require('jsonwebtoken')
+
 blogsRouter.post('/', async (request, response) => {
   const { title, author, url, likes } = request.body
+
+   const authorization = request.get('authorization')
+  if (!authorization || !authorization.toLowerCase().startsWith('bearer ')) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
+  const token = authorization.substring(7)
+  let decodedToken
+  try {
+    decodedToken = jwt.verify(token, process.env.SECRET)
+  } catch (error) {
+    return response.status(401).json({ error: 'invalid token' })
+  }
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
 
   if (!title || !url) {
     return response.status(400).json({ error: 'title or url missing' })
   }
 
-  const users = await User.find({})
-  const user = users[0] 
+   const user = await User.findById(decodedToken.id)
 
   const blog = new Blog({
     title,
