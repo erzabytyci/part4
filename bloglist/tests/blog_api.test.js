@@ -34,6 +34,33 @@ test('blogs are returned as json and correct length', async () => {
   assert.strictEqual(response.body.length, initialBlogs.length)
 })
 
+test('blog without title is not added and returns 400', async () => {
+  const newBlog = {
+    author: 'Author NoTitle',
+    url: 'http://notitle.com',
+    likes: 5
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+})
+
+test('blog without url is not added and returns 400', async () => {
+  const newBlog = {
+    title: 'No URL Blog',
+    author: 'Author NoURL',
+    likes: 5
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+})
+
+
 test('unique identifier property is named id', async () => {
   const response = await api.get('/api/blogs')
 
@@ -83,6 +110,8 @@ test('if likes property is missing, it will default to 0', async () => {
 
   assert.strictEqual(response.body.likes, 0)
 })
+
+
 
 after(async () => {
   await mongoose.connection.close()
