@@ -111,6 +111,22 @@ test('if likes property is missing, it will default to 0', async () => {
   assert.strictEqual(response.body.likes, 0)
 })
 
+test('a blog\'s likes can be updated', async () => {
+  const blogsAtStart = await Blog.find({})
+  const blogToUpdate = blogsAtStart[0]
+
+  const updatedLikes = blogToUpdate.likes + 10
+
+  const response = await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send({ likes: updatedLikes })
+
+  assert.strictEqual(response.statusCode, 200)
+  assert.strictEqual(response.body.likes, updatedLikes)
+
+  const blogInDb = await Blog.findById(blogToUpdate.id)
+  assert.strictEqual(blogInDb.likes, updatedLikes)
+})
 
 test('a blog can be deleted', async () => {
   const blogsAtStart = await Blog.find({})
