@@ -161,3 +161,53 @@ describe('most blogs', () => {
     assert.strictEqual(result, null)
   })
 })
+
+describe('most likes', () => {
+  const blogs = [
+    {
+      _id: '1',
+      title: 'Blog1',
+      author: 'Author A',
+      url: 'url1',
+      likes: 7,
+      __v: 0
+    },
+    {
+      _id: '2',
+      title: 'Blog2',
+      author: 'Author B',
+      url: 'url2',
+      likes: 5,
+      __v: 0
+    },
+    {
+      _id: '3',
+      title: 'Blog3',
+      author: 'Author B',
+      url: 'url3',
+      likes: 12,
+      __v: 0
+    },
+    {
+      _id: '4',
+      title: 'Blog4',
+      author: 'Author C',
+      url: 'url4',
+      likes: 3,
+      __v: 0
+    }
+  ]
+
+  test('returns the author with the most likes', () => {
+    const result = listHelper.mostLikes(blogs)
+    assert.deepStrictEqual(result, {
+      author: 'Author B',
+      likes: 17
+    })
+  })
+
+  test('returns null when list is empty', () => {
+    const result = listHelper.mostLikes([])
+    assert.strictEqual(result, null)
+  })
+})
