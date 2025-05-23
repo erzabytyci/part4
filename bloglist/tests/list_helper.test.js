@@ -101,4 +101,63 @@ describe('favorite blog', () => {
   test('returns null for empty list', () => {
     const result = listHelper.favoriteBlog([])
     assert.strictEqual(result, null)
-  })})
+  })
+})
+
+describe('most blogs', () => {
+  const blogs = [
+    {
+      _id: '1',
+      title: 'Blog1',
+      author: 'Robert C. Martin',
+      url: 'url1',
+      likes: 5,
+      __v: 0
+    },
+    {
+      _id: '2',
+      title: 'Blog2',
+      author: 'Robert C. Martin',
+      url: 'url2',
+      likes: 10,
+      __v: 0
+    },
+    {
+      _id: '3',
+      title: 'Blog3',
+      author: 'Robert C. Martin',
+      url: 'url3',
+      likes: 0,
+      __v: 0
+    },
+    {
+      _id: '4',
+      title: 'Blog4',
+      author: 'Edsger W. Dijkstra',
+      url: 'url4',
+      likes: 7,
+      __v: 0
+    },
+    {
+      _id: '5',
+      title: 'Blog5',
+      author: 'Edsger W. Dijkstra',
+      url: 'url5',
+      likes: 3,
+      __v: 0
+    }
+  ]
+
+  test('returns the author with the most blogs', () => {
+    const result = listHelper.mostBlogs(blogs)
+    assert.deepStrictEqual(result, {
+      author: 'Robert C. Martin',
+      blogs: 3
+    })
+  })
+
+  test('returns null when list is empty', () => {
+    const result = listHelper.mostBlogs([])
+    assert.strictEqual(result, null)
+  })
+})
