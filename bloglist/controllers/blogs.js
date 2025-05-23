@@ -11,24 +11,12 @@ blogsRouter.get('/', async (request, response) => {
 });
 
 blogsRouter.post('/', async (request, response) => {
-  const { title, author, url, likes } = request.body
-
-  let decodedToken
-  try {
-    decodedToken = jwt.verify(token, process.env.SECRET)
-  } catch (error) {
-    return response.status(401).json({ error: 'token missing or invalid' })
-  }
-
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
+  const { title, author, url, likes } = request.body;
+  const user = request.user;
 
   if (!title || !url) {
-    return response.status(400).json({ error: 'title or url missing' })
+    return response.status(400).json({ error: 'title or url missing' });
   }
-
-  const user = await User.findById(decodedToken.id)
 
   const blog = new Blog({
     title,
@@ -36,17 +24,15 @@ blogsRouter.post('/', async (request, response) => {
     url,
     likes: likes || 0,
     user: user._id
-  })
+  });
 
-  const savedBlog = await blog.save()
+  const savedBlog = await blog.save();
+  user.blogs = user.blogs.concat(savedBlog._id);
+  await user.save();
 
-  user.blogs = user.blogs.concat(savedBlog._id)
-  await user.save()
-  
-  const populatedBlog = await savedBlog.populate('user', { username: 1, name: 1 })
-
-  response.status(201).json(populatedBlog)
-})
+  const populatedBlog = await savedBlog.populate('user', { username: 1, name: 1 });
+  response.status(201).json(populatedBlog);
+});
 
 blogsRouter.put('/:id', async (request, response) => {
   const { likes } = request.body
@@ -62,31 +48,17 @@ blogsRouter.put('/:id', async (request, response) => {
   } else {
     response.status(404).end()
   }
-})
-
+});
 
 blogsRouter.delete('/:id', async (request, response) => {
-  const token = request.token;
-
-  if (!token) {
-    return response.status(401).json({ error: 'token missing' });
-  }
-
-  let decodedToken;
-  try {
-    decodedToken = jwt.verify(token, process.env.SECRET);
-  } catch (error) {
-    return response.status(401).json({ error: 'invalid token' });
-  }
-
-  const userId = decodedToken.id;
+  const user = request.user;
   const blog = await Blog.findById(request.params.id);
 
   if (!blog) {
     return response.status(404).json({ error: 'blog not found' });
   }
 
-  if (blog.user.toString() !== userId.toString()) {
+  if (blog.user.toString() !== user._id.toString()) {
     return response.status(401).json({ error: 'only the creator can delete the blog' });
   }
 
